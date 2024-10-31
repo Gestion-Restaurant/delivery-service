@@ -1,7 +1,8 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { mongooseConnect } from "./middleware/mongoDBconnect";
+import { mongooseConnect } from "./middleware/DBMiddleware";
+import DeliveryRouter from "./routes/deliveryRoutes";
 
 var corsOptions = {
   origin: "http://localhost:8081"
@@ -18,10 +19,10 @@ app.use(express.json());
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+app.listen(port, () => {
+  console.log(`⚡️ [server]: Server is running at http://localhost:${port}`);
 });
 
-app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
-});
+
+
+app.use("/", DeliveryRouter.router);
