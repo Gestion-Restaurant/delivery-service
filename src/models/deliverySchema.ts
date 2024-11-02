@@ -1,35 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from 'mongoose';
+import IDelivery from '../interfaces/deliveryInterface';
+import { DeliveryStatus } from '../enums/deliveryStatusEnum';
 
-const deliverySchema = new mongoose.Schema({
-    rf_id_order: {
-        type: Number,
-        required: true,
-        unique: true
-    },
-    price: {
-        type: Number,
-        required: true
-    },
-    delivery_start_date: {
-        type: Date,
-        required: true
-    },
-    delivery_end_date: {
-        type: Date,
-        required: true
-    },
-    delivery_status: {
-        type: String,
-        required: true
-    },
-    delivery_address: {
-        type: String,
-        required: true
-    },
-    delivery_agent: {
-        type: Number,
-        required: true
-    },
+const DeliverySchema: Schema = new Schema({
+    orderId: { type: mongoose.Types.ObjectId, ref: 'Order', required: true },
+    deliveryPersonId: { type: mongoose.Types.ObjectId, ref: 'Client', required: true },
+    status: { type: String, enum: DeliveryStatus, default: 'assigned' },
+    deliveryTime: { type: Date },
+    updatedAt: { type: Date, default: Date.now },
 });
 
-export const Delivery = mongoose.model('Delivery', deliverySchema);
+export default mongoose.model<IDelivery>('deliveries', DeliverySchema);
