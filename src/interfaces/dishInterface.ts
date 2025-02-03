@@ -5,6 +5,8 @@ interface IDish extends Document {
     description: string;
     price: number;
     isAvailable: boolean;
+    category: string;
+    id_restaurant: string;
 }
 
 export default IDish;

@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { mongooseConnect } from "./middleware/DBMiddleware";
-import DeliveryRouter from "./routes/deliveryRoutes";
+import DeliveryRouter from "./routes/delivery.routes";
 import { requestLogger } from './middleware/requestLogger';
 
 var corsOptions = {
@@ -11,7 +11,7 @@ var corsOptions = {
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3003;
 
 mongooseConnect();
 
@@ -26,4 +26,4 @@ app.listen(port, () => {
 
 
 
-app.use("/api/deliveries", DeliveryRouter);
+app.use("/deliveries", DeliveryRouter);

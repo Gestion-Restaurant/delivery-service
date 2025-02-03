@@ -8,7 +8,7 @@ const logFormat = winston.format.printf(({ level, message, timestamp }) => {
 });
 
 const logger = winston.createLogger({
-    level: process.env.LOG_LEVEL || 'debug', // Log level from environment or default to 'info'
+    level: process.env.LOG_LEVEL ?? 'debug', // Log level from environment or default to 'info'
     format: format.combine(
         format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
         format.printf(({ timestamp, level, message }) => {

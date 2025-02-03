@@ -3,11 +3,29 @@ import IDelivery from '../interfaces/deliveryInterface';
 import { DeliveryStatus } from '../enums/deliveryStatusEnum';
 
 const DeliverySchema: Schema = new Schema({
-    orderId: { type: mongoose.Types.ObjectId, ref: 'Order', required: true },
-    deliveryPersonId: { type: mongoose.Types.ObjectId, ref: 'Client', required: true },
-    status: { type: String, enum: DeliveryStatus, default: 'assigned' },
-    deliveryTime: { type: Date },
-    updatedAt: { type: Date, default: Date.now },
+    deliveryPersonId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false
+    },
+    clientId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: Object.values(DeliveryStatus),
+        default: DeliveryStatus.PENDING
+    },
+    address: {
+        type: String,
+        required: false
+    }
+}, {
+    timestamps: true
 });
 
 export default mongoose.model<IDelivery>('deliveries', DeliverySchema);
