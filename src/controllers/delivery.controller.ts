@@ -6,6 +6,8 @@ import logger from '../utils/logger';
 import { DeliveryStatus } from '../types/deliveryStatus';
 import axios from 'axios';
 import { config } from '../config/config';
+import IDeliveryCustom from '../interfaces/deliveryCInterface';
+import IUser from '../interfaces/userInterface';
 
 // Get all deliveries
 export const getAllDeliveries = async (req: Request, res: Response): Promise<Response> => {
@@ -59,12 +61,37 @@ export const getDeliveriesByOrderId = async (req: Request, res: Response): Promi
 export const getDeliveriesByDeliveryPersonId = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { deliveryPersonId } = req.params;
-        const deliveries: IDelivery[] = await Delivery.find({ deliveryPersonId });
+        // get all deliveries that are affected to the deliveryGuy and are not DELIVERED
+        const deliveries: IDelivery[] = await Delivery.find({ deliveryPersonId, status: { $ne: DeliveryStatus.DELIVERED } });
 
-        return res.status(200).json(deliveries);
+        // Get all unique customer IDs
+        const customerIds = [...new Set(deliveries.map(d => d.clientId.toString()))];
+        
+        // Fetch customer data for all customers in parallel
+        const customerResponses = await Promise.all(
+            customerIds.map(id =>
+                axios.get(`${config.customerServiceUrl}/users/byId/${id}`)
+                    .catch(err => ({ data: null })) // Handle failed requests gracefully
+            )
+        );
+
+        // Create a map of customer data
+        const customerMap: { [key: string]: any } = customerResponses.reduce((map: { [key: string]: IUser }, response, index) => {
+            if (response.data) {
+                map[customerIds[index]] = response.data;
+            }
+            return map;
+        }, {});
+
+        const deliveriesCustom: IDeliveryCustom[] = deliveries.map((delivery) => ({
+            ...delivery.toObject(),
+            customerName: customerMap[delivery.clientId.toString()]?.customer.name || 'Unknown Customer'
+        }));
+
+        return res.status(200).json(deliveriesCustom);
     } catch (error) {
-        logger.error(`Error getting deliveries: ${error}`);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error in getDeliveriesByDeliveryPersonId:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
