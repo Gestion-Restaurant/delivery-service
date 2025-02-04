@@ -5,9 +5,6 @@ import { mongooseConnect } from "./middleware/DBMiddleware";
 import DeliveryRouter from "./routes/delivery.routes";
 import { requestLogger } from './middleware/requestLogger';
 
-var corsOptions = {
-};
-
 dotenv.config();
 
 const app: Express = express();
@@ -17,7 +14,6 @@ mongooseConnect();
 
 app.use(requestLogger);
 app.use(express.json());
-app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 
 app.listen(port, () => {

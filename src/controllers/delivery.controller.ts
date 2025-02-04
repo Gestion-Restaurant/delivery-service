@@ -4,6 +4,8 @@ import Delivery from '../models/deliverySchema';
 import IDelivery from '../interfaces/deliveryInterface';
 import logger from '../utils/logger';
 import { DeliveryStatus } from '../types/deliveryStatus';
+import axios from 'axios';
+import { config } from '../config/config';
 
 // Get all deliveries
 export const getAllDeliveries = async (req: Request, res: Response): Promise<Response> => {
@@ -24,6 +26,7 @@ export const getDeliveryById = async (req: Request, res: Response): Promise<Resp
         const { id } = req.params;
         const delivery: IDelivery | null = await Delivery.findById(id);
 
+        console.log(delivery);
         if (!delivery) {
             return res.status(404).json({ error: 'Delivery not found' });
         }
@@ -57,10 +60,6 @@ export const getDeliveriesByDeliveryPersonId = async (req: Request, res: Respons
     try {
         const { deliveryPersonId } = req.params;
         const deliveries: IDelivery[] = await Delivery.find({ deliveryPersonId });
-
-        if (!deliveries.length) {
-            return res.status(404).json({ error: 'Deliveries not found' });
-        }
 
         return res.status(200).json(deliveries);
     } catch (error) {
@@ -106,7 +105,7 @@ export const createDelivery = async (req: Request, res: Response): Promise<Respo
 export const assignDeliveryPerson = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { deliveryPersonId } = req.body;
-        const { id } = req.params;
+        const id = req.query.orderId as string;
         
         const delivery = await Delivery.findOne({ orderId: id });
         if (!delivery) {
@@ -116,6 +115,9 @@ export const assignDeliveryPerson = async (req: Request, res: Response): Promise
             return res.status(400).json({ error: 'Delivery already assigned' });
         }
         delivery.deliveryPersonId = deliveryPersonId;
+        delivery.status = DeliveryStatus.ASSIGNED;
+        
+        await axios.patch(`${config.orderServiceUrl}/orders/ById/${id}`, { status: DeliveryStatus.ASSIGNED });
         await delivery.save();
 
         return res.status(201).json(delivery);

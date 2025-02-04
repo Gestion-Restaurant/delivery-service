@@ -12,12 +12,9 @@ import {
 
 const router = Router();
 
-router.get('/', (req, res) => {
-    getAllDeliveries(req, res);
-});
-
-router.get('/:id', (req, res) => {
-    getDeliveryById(req, res);
+// List all specific routes first
+router.post('/assignForDelivery', (req, res) => {
+    assignDeliveryPerson(req, res);
 });
 
 router.get('/order/:orderId', (req, res) => {
@@ -32,16 +29,21 @@ router.get('/status/:status', (req, res) => {
     getDeliveriesByStatus(req, res);
 });
 
+router.patch('/status/:orderId', (req, res) => {
+    updateDeliveryStatus(req, res);
+});
+
+// Generic routes last
+router.get('/:id', (req, res) => {
+    getDeliveryById(req, res);
+});
+
 router.post('/', (req, res) => {
     createDelivery(req, res);
 });
 
-router.post('/assign/:id', (req, res) => {
-    assignDeliveryPerson(req, res);
-});
-
-router.patch('/status/:orderId', (req, res) => {
-    updateDeliveryStatus(req, res);
+router.get('/', (req, res) => {
+    getAllDeliveries(req, res);
 });
 
 export default router;
