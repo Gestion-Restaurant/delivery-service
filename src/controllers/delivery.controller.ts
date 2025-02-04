@@ -133,6 +133,8 @@ export const assignDeliveryPerson = async (req: Request, res: Response): Promise
     try {
         const { deliveryPersonId } = req.body;
         const id = req.query.orderId as string;
+
+        console.log(id);
         
         const delivery = await Delivery.findOne({ orderId: id });
         if (!delivery) {
